@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>バスケシュートチャレンジ</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+        sans-serif;
+      color: white;
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    }
+
+    main {
+      width: min(90%, 440px);
+      padding: 36px;
+      text-align: center;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin: 0 0 24px;
+    }
+
+    .score {
+      font-size: 72px;
+      font-weight: bold;
+      color: #fbbf24;
+    }
+
+    .label {
+      margin-top: -8px;
+      color: #cbd5e1;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 30px 0;
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: #f97316;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ea580c;
+    }
+
+    #message {
+      min-height: 28px;
+      margin: 24px 0 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    @keyframes scorePop {
+      0% {
+        transform: scale(1);
+        text-shadow: none;
+      }
+
+      50% {
+        transform: scale(1.25);
+        text-shadow: 0 0 22px #fbbf24;
+      }
+
+      100% {
+        transform: scale(1);
+        text-shadow: none;
+      }
+    }
+
+    .success-animation {
+      animation: scorePop 0.45s ease-out;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>🏀 シュートチャレンジ</h1>
+
+    <div class="score" id="score">0</div>
+    <div class="label">POINTS</div>
+
+    <div class="stats">
+      <div>
+        <span class="stat-number" id="attempts">0</span>
+        シュート数
+      </div>
+      <div>
+        <span class="stat-number" id="streak">0</span>
+        連続成功
+      </div>
+    </div>
+
+    <button id="shootButton">シュートを打つ！</button>
+    <p id="message">最初の1本を決めよう</p>
+  </main>
+
+  <script>
+    let score = 0;
+    let attempts = 0;
+    let streak = 0;
+
+    const shootButton = document.getElementById("shootButton");
+    const scoreDisplay = document.getElementById("score");
+    const attemptsDisplay = document.getElementById("attempts");
+    const streakDisplay = document.getElementById("streak");
+    const message = document.getElementById("message");
+
+    scoreDisplay.addEventListener("animationend", function () {
+      scoreDisplay.classList.remove("success-animation");
+    });
+
+    function playSuccessSound() {
+      const audioContext = new AudioContext();
+
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(660, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(
+        880,
+        audioContext.currentTime + 0.15
+      );
+
+      gainNode.gain.setValueAtTime(0.12, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + 0.16
+      );
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.16);
+    }
+    shootButton.addEventListener("click", function () {
+      const randomNumber = Math.random();
+      const isSuccess = randomNumber < 0.6;
+
+      console.log(randomNumber, isSuccess);
+
+      attempts = attempts + 1;
+
+      if (isSuccess) {
+        score = score + 2;
+        streak = streak + 1;
+        message.textContent = "ナイス！2ポイント！";
+
+        scoreDisplay.classList.add("success-animation");
+        playSuccessSound();
+      } else {
+        streak = 0;
+        message.textContent = "惜しい！次は決めよう";
+      }
+
+      scoreDisplay.textContent = score;
+      attemptsDisplay.textContent = attempts;
+      streakDisplay.textContent = streak;
+    });
+  </script>
+</body>
+
+</html>
